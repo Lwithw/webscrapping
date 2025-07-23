@@ -10,6 +10,9 @@ assets_visited = set()
 
 DOWNLOAD_DIR = 'downloaded_site'
 
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+HEADERS = {"User-Agent": USER_AGENT}
+
 # Helper to create local file path
 def get_local_path(url, base_url):
     parsed = urlparse(url)
@@ -34,7 +37,7 @@ def download_asset(asset_url, base_url):
         return
     assets_visited.add(asset_url)
     try:
-        r = requests.get(asset_url, timeout=10)
+        r = requests.get(asset_url, headers=HEADERS, timeout=10)
         if r.status_code == 200:
             local_path = get_local_path(asset_url, base_url)
             save_file(r.content, local_path)
@@ -78,7 +81,7 @@ def crawl(url, base_url):
         return
     visited.add(url)
     try:
-        r = requests.get(url, timeout=10)
+        r = requests.get(url, headers=HEADERS, timeout=10)
         if r.status_code != 200:
             return
         soup = BeautifulSoup(r.text, 'lxml')
@@ -103,7 +106,7 @@ def crawl(url, base_url):
                 css_url = urljoin(url, css_url)
                 if urlparse(css_url).netloc == urlparse(base_url).netloc:
                     try:
-                        css_r = requests.get(css_url, timeout=10)
+                        css_r = requests.get(css_url, headers=HEADERS, timeout=10)
                         if css_r.status_code == 200:
                             local_css_path = get_local_path(css_url, base_url)
                             save_file(css_r.content, local_css_path)
